@@ -1,0 +1,24 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Name:* fishy name\n*Scientific Name:* homo fishapien\n *Timestamp:* 0:02"
+			}
+		},
+		{
+			"type": "image",
+			"title": {
+				"type": "plain_text",
+				"text": "image1",
+				"emoji": true
+			},
+			"image_url": "https://api.slack.com/img/blocks/bkb_template_images/onboardingComplex.jpg",
+			"alt_text": "image1"
+		},
+		{
+			"type": "divider"
+		}
+	]
+}

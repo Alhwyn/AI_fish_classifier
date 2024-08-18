@@ -33,6 +33,8 @@ def handle_message_events(body, logger):
 def slack_events():
     return handler.handle(request)
 
+    
+
 @app.command("/fish")
 def pricing_command(ack, say, body,  command, logger, client):
     ack()
@@ -48,12 +50,25 @@ def pricing_command(ack, say, body,  command, logger, client):
 def handle_pricing_submission(ack, body, logger):
     ack()
     try:
-        print('pricing modals works')
+        data_bad = body['view']['state']
+
+        for k, v in data_bad['values'].items():
+            if 'plain_text_input-action' in v and 'value' in v['plain_text_input-action']:
+                extracted_value = v['plain_text_input-action']['value']
+
+                print(extracted_value)
+
+               
+
     except Exception as e:
         logger.error(f"Error Handling modal_example{e}")
 
+@app.action('plain_text_input-action')
+def handle_action(ack, body, logger):
+    ack()
+    logger.info(body)
 
-
+  
 if __name__ == "__main__":
     flask_app.run(host="0.0.0.0", port=5000)
 
