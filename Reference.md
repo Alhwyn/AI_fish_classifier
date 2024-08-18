@@ -22,3 +22,11 @@ https://ai.google.dev/gemini-api/tutorials/extract_structured_data
 
 https://www.youtube.com/watch?v=wddeVYrg-dk
 
+## Using slack to make it more user friendly but trying to learn do the frotend and backend stuff soon!
+
+- Here is my slack python template 
+
+https://github.com/Alhwyn/slack-bot-template
+
+
+
