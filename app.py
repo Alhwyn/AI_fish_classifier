@@ -5,6 +5,13 @@ from flask import Flask, request, jsonify
 import os
 import json
 from dotenv import load_dotenv, find_dotenv
+import vertexai
+
+#import the other files
+
+import gemini
+import fish
+
 
 
 load_dotenv(find_dotenv())
@@ -23,7 +30,7 @@ handler = SlackRequestHandler(app)
 @app.event("app_mention")
 def event_test(body, say, logger):
     logger.info(body)
-    say("What's up?")
+    say()
 
 @app.event("message")
 def handle_message_events(body, logger):
@@ -43,25 +50,43 @@ def pricing_command(ack, say, body,  command, logger, client):
         with open('fish_class.json') as file:
             json_data = json.load(file)
             client.views_open(trigger_id=trigger_id, view=json_data)
+            
     except Exception as e:
                 logger.error(f"Error Handling in /modal_example {e}")
 
 @app.view("fishy")
-def handle_pricing_submission(ack, body, logger):
+def handle_pricing_submission(ack, body, logger, say):
     ack()
     try:
         data_bad = body['view']['state']
-
         for k, v in data_bad['values'].items():
             if 'plain_text_input-action' in v and 'value' in v['plain_text_input-action']:
-                extracted_value = v['plain_text_input-action']['value']
+                value = v['plain_text_input-action']['value']
 
-                print(extracted_value)
+        extract_value = value.split('/')
+        if extract_value[0] == 'gs:':
+ 
+            file_name = extract_value[-1]
+            json_data = gemini.gemini_ai(video_uri=value)
+            data = json.loads(json_data)
+  
+            fish.get_vid_from_bucky(bucket="fish-dataset-test", source=file_name, file_name=file_name)
+            blocks = fish.payload_builder(json_data=data, file_name=file_name)
 
-               
+            say(text='post_message_payload', 
+                                     channel='C07G1AAKXL2', 
+                                     blocks=blocks
+                                    )
+  
+            
+
+
+        
+        else:
+            pass
 
     except Exception as e:
-        logger.error(f"Error Handling modal_example{e}")
+        raise e
 
 @app.action('plain_text_input-action')
 def handle_action(ack, body, logger):
