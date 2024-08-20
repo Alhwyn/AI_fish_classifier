@@ -10,17 +10,6 @@ load_dotenv(find_dotenv())
 
 DROPBOX_TOKEN = os.getenv('DROPBOX_TOKEN')
 
-def upload_to_dropbox(file_path):
-    # Create a Dropbox client
-    dbx = dropbox.Dropbox(DROPBOX_TOKEN)
-
- 
-
-    try:
-        link = dbx.files_get_temporary_link(file_path)
-        return link.link
-    except dropbox.exceptions.ApiError as e:
-        print(f"Error accessing file: {e}")
 
 
 
@@ -42,7 +31,7 @@ def extract_frame_timestamp(timestamp: str, video_path: str, fish_name: str):
 
     minute, seconds = timestamp_list_float
 
-    frame_num = minute * 60 * fps + seconds * fps
+    frame_num = minute * 60 * fps + (seconds + 1) * fps
 
     video.set(1, frame_num)
 
@@ -51,14 +40,15 @@ def extract_frame_timestamp(timestamp: str, video_path: str, fish_name: str):
     cv2.imwrite(f'FRAMES/{fish_name}.jpg', frame)
 #get
 
-def payload_builder(json_data: List[dict], file_name: str) -> json:
+def payload_builder(json_data: List[dict], file_name: str, client: json) -> json:
     try:
         blocks = []
         print(json_data)
+        print(type(json_data))
         for key in json_data:
             fish_name = key.get("vernacular name").replace(" ", '_')
             extract_frame_timestamp(timestamp=key.get("timestamp"), video_path=file_name, fish_name=fish_name)
-            image_url = upload_to_dropbox(f"FRAMES/{fish_name}")
+            image_url = image_to_url(f"FRAMES/{fish_name}.jpg", client)
 
             text = {
                 "type": "section",

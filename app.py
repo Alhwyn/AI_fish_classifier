@@ -6,13 +6,12 @@ import os
 import json
 from dotenv import load_dotenv, find_dotenv
 import vertexai
+import time
 
 #import the other files
 
 import gemini
 import fish
-
-
 
 load_dotenv(find_dotenv())
 
@@ -28,10 +27,10 @@ handler = SlackRequestHandler(app)
 
 # listen fur user mentoining the slack app
 @app.event("app_mention")
-def event_test(body, say, logger):
+def event_test(body, say, logger, client):
     logger.info(body)
-    say()
-
+ 
+    
 @app.event("message")
 def handle_message_events(body, logger):
     logger.info(body)
@@ -39,8 +38,6 @@ def handle_message_events(body, logger):
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
     return handler.handle(request)
-
-    
 
 @app.command("/fish")
 def pricing_command(ack, say, body,  command, logger, client):
@@ -55,7 +52,7 @@ def pricing_command(ack, say, body,  command, logger, client):
                 logger.error(f"Error Handling in /modal_example {e}")
 
 @app.view("fishy")
-def handle_pricing_submission(ack, body, logger, say):
+def handle_pricing_submission(ack, body, logger, say, client):
     ack()
     try:
         data_bad = body['view']['state']
@@ -65,25 +62,37 @@ def handle_pricing_submission(ack, body, logger, say):
 
         extract_value = value.split('/')
         if extract_value[0] == 'gs:':
- 
-            file_name = extract_value[-1]
+            # file_name_name cause fish_name and file_name looks the same
+            file_name_name = extract_value[-1]
             json_data = gemini.gemini_ai(video_uri=value)
             data = json.loads(json_data)
   
-            fish.get_vid_from_bucky(bucket="fish-dataset-test", source=file_name, file_name=file_name)
-            blocks = fish.payload_builder(json_data=data, file_name=file_name)
-
-            say(text='post_message_payload', 
-                                     channel='C07G1AAKXL2', 
-                                     blocks=blocks
-                                    )
-  
+            fish.get_vid_from_bucky(bucket="fish-dataset-test", source=file_name_name, file_name=file_name_name)
             
+            for key in data:
+                fish_name = key.get("vernacular name").replace(" ", '_')
+                fish.extract_frame_timestamp(timestamp=key.get("timestamp"), video_path=file_name_name, fish_name=fish_name)
 
+                text = {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": f"*Name:* {key.get("vernacular name")}\n*Scientific Name:* {key.get("scientific name")}\n *Timestamp:* {key.get("timestamp")}"
+                    }
+                }
 
-        
+                bob = say(text='post_message_payload', 
+                    channel='C07G1AAKXL2', 
+                    blocks=[text]
+                    )
+
+                if bob:
+                    client.files_upload_v2(channels='C07G1AAKXL2',  # Specify the channel to upload to
+                                        file=f"FRAMES/{fish_name}.jpg",  # Local file path
+                                        ) 
+                time.sleep(2) 
         else:
-            pass
+            print("Nu-uh")
 
     except Exception as e:
         raise e

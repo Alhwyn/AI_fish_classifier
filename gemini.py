@@ -32,16 +32,16 @@ safety_settings = {
     HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
 }
 
-
-
-
 def gemini_ai(video_uri: str):
     print(0)
     instructions = """  
 Please return JSON of the vernacular name of the fish and coral species, the scientific name, and the best timestamp of the frame identified from the video. Use this
 example following the schema:
 
+   [ 
+    {"vernacular name": str, "scientific name": str, "timestamp": str},
     {"vernacular name": str, "scientific name": str, "timestamp": str}
+    ]
 
     All fields are required. 
 
@@ -60,7 +60,4 @@ example following the schema:
     response = model.generate_content(contents, generation_config=generation_config)
     print('finish creating response')
     return response.text.replace('*', '').replace("\n", "").replace('json', "").replace("`", "")
-
-
-
 
