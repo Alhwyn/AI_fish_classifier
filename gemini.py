@@ -32,6 +32,8 @@ safety_settings = {
     HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
 }
 
+
+
 def gemini_ai(video_uri: str):
     print(0)
     instructions = """  
@@ -46,7 +48,7 @@ example following the schema:
     All fields are required. 
 
                """
-    print(1)
+
     contents = [
     Part.from_uri(
         uri=video_uri,
@@ -54,9 +56,10 @@ example following the schema:
     ),
     instructions
                 ]
-    print(2)
+
     generation_config = GenerationConfig(temperature=1, top_p=0.95)
-    print(3)
+
+    # Gemini response
     response = model.generate_content(contents, generation_config=generation_config)
     print('finish creating response')
     return response.text.replace('*', '').replace("\n", "").replace('json', "").replace("`", "")
