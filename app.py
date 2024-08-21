@@ -48,7 +48,7 @@ def pricing_command(ack, say, body,  command, logger, client):
     trigger_id = body['trigger_id']
     try:
         # opens the user infterface modals
-        with open('fish_class.json') as file:
+        with open('JSONFILE/fish_class.json') as file:
             json_data = json.load(file)
             client.views_open(trigger_id=trigger_id, view=json_data)
             
