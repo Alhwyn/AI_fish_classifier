@@ -35,7 +35,6 @@ safety_settings = {
 
 
 def gemini_ai(video_uri: str):
-    print(0)
     instructions = """  
 Please return JSON of the vernacular name of the fish and coral species, the scientific name, and the best timestamp of the frame identified from the video. Use this
 example following the schema:
